@@ -1,56 +1,46 @@
 #include "binary_trees.h"
 
 /**
- * bst_insert - inserts a value in a Binary Search Tree.
- * @tree: double pointer to the root node of the BST to insert the value.
- * @value: value to store in the node to be inserted.
+ * bst_insert - Inserts a value in a Binary Search Tree.
  *
- * Return: a pointer to the created node, or NULL on failure.
- *         If the address stored in @tree is NULL, the created node
- *         becomes the root node.
- *         If the value is already present in the tree, it is ignored.
+ * @tree: A double pointer to the root node of the BST to insert the value.
+ * @value: The value to store in the node to be inserted.
+ *
+ * Return: A pointer to the created node, or NULL on failure.
  */
-
 bst_t *bst_insert(bst_t **tree, int value)
 {
-	bst_t *new_node = NULL;
+	bst_t *current, *new;
 
-	if (tree == NULL)
-		return (NULL);
-	if (*tree == NULL)
+	if (tree != NULL)
 	{
-		*tree = binary_tree_node(NULL, value);
-		return (*tree);
-	}
-
-	new_node = *tree;
-	while (1)
-	{
-		if (value == new_node->n)
-			return (NULL);
-
-		if (value > new_node->n)
+		current = *tree;
+		if (current == NULL)
 		{
-			if (new_node->right != NULL)
-				new_node = new_node->right;
-			else
-			{
-				new_node = binary_tree_node(new_node, value);
-				new_node->parent->right = new_node;
-				break;
-			}
+			new = binary_tree_node(current, value);
+			if (new == NULL)
+				return (NULL);
+			return (*tree = new);
 		}
-		else
+		if (value < current->n)
 		{
-			if (new_node->left != NULL)
-				new_node = new_node->left;
-			else
-			{
-				new_node = binary_tree_node(new_node, value);
-				new_node->parent->left = new_node;
-				break;
-			}
+			if (current->left != NULL)
+				return (bst_insert(&current->left, value));
+			new = binary_tree_node(current, value);
+			if (new == NULL)
+				return (NULL);
+			return (current->left = new);
+		}
+		if (value > current->n)
+		{
+			if (current->right != NULL)
+				return (bst_insert(&current->right, value));
+			new = binary_tree_node(current, value);
+			if (new == NULL)
+				return (NULL);
+			return (current->right = new);
 		}
 	}
-	return (new_node);
+
+	return (NULL);
 }

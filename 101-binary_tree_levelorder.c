@@ -1,91 +1,126 @@
 #include "binary_trees.h"
 
+void binary_tree_levelorder(const binary_tree_t *tree, void (*func)(int));
+levelorder_queue_t *create_node(binary_tree_t *node);
+void pint_push(binary_tree_t *node, levelorder_queue_t *head,
+		levelorder_queue_t **tail, void (*func)(int));
+void free_queue(levelorder_queue_t *head);
+void pop(levelorder_queue_t **head);
+
 /**
- * binary_tree_levelorder - goes through a binary tree using
- *                          level-order traversal
- *                          If tree or func is NULL, do nothing.
- * @tree: pointer to the root node of the tree to traverse.
- * @func: pointer to a function to call for each node. The value
- *        in the node must be passed as a parameter to this function.
+ * binary_tree_levelorder - Goes through a bin-tree by level-order traversal.
  *
- * Return: void.
+ * @tree: A pointer to the root node of the tree to traverse.
+ * @func: A pointer to a function to call for each node.
  */
-
-
 void binary_tree_levelorder(const binary_tree_t *tree, void (*func)(int))
 {
-	queue_t *q_head = NULL, *q_tail = NULL;
+	levelorder_queue_t *head, *tail;
 
 	if (tree == NULL || func == NULL)
 		return;
 
-	q_head = push_to_q(&q_head, &q_tail, tree);
-	while (q_head != NULL)
+	head = tail = create_node((binary_tree_t *)tree);
+	if (head == NULL)
+		return;
+
+	while (head != NULL)
 	{
-		q_tail = push_to_q(&q_head, &q_tail, q_head->node->left);
-		q_tail = push_to_q(&q_head, &q_tail, q_head->node->right);
-		func(q_head->node->n);
-		q_head = pop_the_q(&q_head, &q_tail);
+		pint_push(head->node, head, &tail, func);
+		pop(&head);
 	}
 }
 
 /**
- * push_to_q - adds a new element to the queue.
- * @q_head: head of the queue.
- * @q_tail: tail of the queue.
- * @node: a binary_tree_t pointer to be placed in queue.
+ * create_node - Creates a new levelorder_queue_t node.
  *
- * Return: pointer to the newly created node, meaning the tail.
+ * @node: The binary tree node for the new node to contain.
+ *
+ * Return: If an error occurs, NULL.
+ *         Otherwise, a pointer to the new node.
  */
-
-queue_t *push_to_q(queue_t **q_head, queue_t **q_tail,
-		   const binary_tree_t *node)
+levelorder_queue_t *create_node(binary_tree_t *node)
 {
-	queue_t *q_node = NULL;
+	levelorder_queue_t *new;
 
-	/* If node sended is NULL, no new element is added to the queue */
-	if (node == NULL)
-		return (*q_tail);
-
-	q_node = malloc(sizeof(queue_t));
-	if (q_node == NULL)
+	new = malloc(sizeof(levelorder_queue_t));
+	if (new == NULL)
 		return (NULL);
-	q_node->node = node;
-	q_node->next = NULL;
 
-	if (*q_head == NULL)
-	{
-		*q_head = q_node;
-		*q_tail = q_node;
-	}
-	else
-	{
-		(*q_tail)->next = q_node;
-		*q_tail = q_node;
-	}
-	return (q_node);
+	new->node = node;
+	new->next = NULL;
+
+	return (new);
 }
 
+/**
+ * pint_push - Runs a function on a given binary tree node and
+ *             pushes its children into a levelorder_queue_t queue.
+ *
+ * @node: The binary tree node to print and push.
+ * @head: A double pointer to the head of the queue.
+ * @tail: A double pointer to the tail of the queue.
+ * @func: A pointer to the function to call on @node.
+ *
+ * Description: Upon malloc failure, exits with a status code of 1.
+ */
+void pint_push(binary_tree_t *node, levelorder_queue_t *head,
+		levelorder_queue_t **tail, void (*func)(int))
+{
+	levelorder_queue_t *new;
+
+	func(node->n);
+	if (node->left != NULL)
+	{
+		new = create_node(node->left);
+		if (new == NULL)
+		{
+			free_queue(head);
+			exit(1);
+		}
+		(*tail)->next = new;
+		*tail = new;
+	}
+	if (node->right != NULL)
+	{
+		new = create_node(node->right);
+		if (new == NULL)
+		{
+			free_queue(head);
+			exit(1);
+		}
+		(*tail)->next = new;
+		*tail = new;
+	}
+}
 
 /**
- * pop_the_q - pops the head of the queue.
- * @q_head: head of the queue.
- * @q_tail: tail of the queue.
+ * free_queue - Frees a levelorder_queue_t queue.
  *
- * Return: the new head of the queue.
+ * @head: A pointer to the head of the queue.
  */
-
-queue_t *pop_the_q(queue_t **q_head, queue_t **q_tail)
+void free_queue(levelorder_queue_t *head)
 {
-	queue_t *q_node = NULL;
+	levelorder_queue_t *tmp;
 
-	if (*q_head == NULL || *q_tail == NULL)
-		return (NULL);
-	q_node = *q_head;
-	*q_head = (*q_head)->next;
-	if (*q_head == NULL)
-		*q_tail = NULL;
-	free(q_node);
+	while (head != NULL)
+	{
+		tmp = head->next;
+		free(head);
+		head = tmp;
+	}
+}
 
-	return (*q_head);
+/**
+ * pop - Pops the head of a levelorder_queue_t queue.
+ *
+ * @head: A double pointer to the head of the queue.
+ */
+void pop(levelorder_queue_t **head)
+{
+	levelorder_queue_t *tmp;
+
+	tmp = (*head)->next;
+	free(*head);
+	*head = tmp;
 }

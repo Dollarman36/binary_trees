@@ -1,13 +1,9 @@
-#ifndef BINARY_TREES_
-#define BINARY_TREES_
+#ifndef BINARY_TREES_H
+#define BINARY_TREES_H
 
-/* Libraries */
 #include <stddef.h>
-#include <stdio.h>
 #include <stdlib.h>
-
-
-/* structures and globals */
+#include <limits.h>
 
 /**
  * struct binary_tree_s - Binary tree node
@@ -25,27 +21,26 @@ struct binary_tree_s
 	struct binary_tree_s *right;
 };
 typedef struct binary_tree_s binary_tree_t;
-
 typedef struct binary_tree_s bst_t;
 typedef struct binary_tree_s avl_t;
 typedef struct binary_tree_s heap_t;
 
 /**
- * struct queue_s - singly linked queue.
- *
- * @node: binary_tree_t pointer to put on queue.
- * @next: next node in queue
+ * struct levelorder_queue_s - Level order traversal queue.
+ * @node: A node of a binary tree.
+ * @next: The next node to traverse to in the binary tree.
  */
-
-typedef struct queue_s
+typedef struct levelorder_queue_s
 {
-	const binary_tree_t *node;
-	struct queue_s *next;
-} queue_t;
+	binary_tree_t *node;
+	struct levelorder_queue_s *next;
+} levelorder_queue_t;
 
-/* Prototypes */
+
+/* Printing helper function */
 void binary_tree_print(const binary_tree_t *);
 
+/* Task function prototypes */
 binary_tree_t *binary_tree_node(binary_tree_t *parent, int value);
 binary_tree_t *binary_tree_insert_left(binary_tree_t *parent, int value);
 binary_tree_t *binary_tree_insert_right(binary_tree_t *parent, int value);
@@ -66,22 +61,31 @@ int binary_tree_is_perfect(const binary_tree_t *tree);
 binary_tree_t *binary_tree_sibling(binary_tree_t *node);
 binary_tree_t *binary_tree_uncle(binary_tree_t *node);
 binary_tree_t *binary_trees_ancestor(const binary_tree_t *first,
-				     const binary_tree_t *second);
-binary_tree_t *recursive_ancestor(const binary_tree_t *node,
-				  const binary_tree_t *first,
-				  const binary_tree_t *second);
+		const binary_tree_t *second);
 void binary_tree_levelorder(const binary_tree_t *tree, void (*func)(int));
-queue_t *push_to_q(queue_t **q_head, queue_t **q_tail,
-		   const binary_tree_t *node);
-queue_t *pop_the_q(queue_t **q_head, queue_t **q_tail);
 int binary_tree_is_complete(const binary_tree_t *tree);
 binary_tree_t *binary_tree_rotate_left(binary_tree_t *tree);
 binary_tree_t *binary_tree_rotate_right(binary_tree_t *tree);
+
+/* BST tree tasks prototypes. */
 int binary_tree_is_bst(const binary_tree_t *tree);
-int is_less(const binary_tree_t *node, int r_val, int side);
-int is_greater(const binary_tree_t *node, int r_val, int side);
 bst_t *bst_insert(bst_t **tree, int value);
 bst_t *array_to_bst(int *array, size_t size);
 bst_t *bst_search(const bst_t *tree, int value);
+bst_t *bst_remove(bst_t *root, int value);
 
-#endif /* end BINARY_TREES_*/
+/* AVL tree tasks prototypes. */
+int binary_tree_is_avl(const binary_tree_t *tree);
+avl_t *avl_insert(avl_t **tree, int value);
+avl_t *array_to_avl(int *array, size_t size);
+avl_t *avl_remove(avl_t *root, int value);
+avl_t *sorted_array_to_avl(int *array, size_t size);
+
+/* Max Binary Heap tasks prototypes. */
+int binary_tree_is_heap(const binary_tree_t *tree);
+heap_t *heap_insert(heap_t **root, int value);
+heap_t *array_to_heap(int *array, size_t size);
+int heap_extract(heap_t **root);
+int *heap_to_sorted_array(heap_t *heap, size_t *size);
+
+#endif
